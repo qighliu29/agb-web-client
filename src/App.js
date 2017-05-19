@@ -1,6 +1,13 @@
 import React, { Component } from 'react';
+import { createStore, applyMiddleware } from 'redux';
 import './App.css';
+import agbClient from './reducers';
 import { ImageInput, Gallery } from './components';
+
+const store = createStore(
+  agbClient,
+  applyMiddleware([thunk])
+);
 
 class App extends Component {
   render() {

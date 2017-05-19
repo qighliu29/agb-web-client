@@ -1,21 +1,38 @@
-const fetchImageData = (urlList) => {
+import * as api from '../api';
+import { getIsFetching } from '../reducers';
 
-}
+export const fetchMatchImages = (imageData) => (dispatch, getState) => {
+    if (getIsFetching(getState())) {
+        return Promise.resolve();
+    }
 
-const parseURLJSON = (prJSON) => {
-    return prJSON.then((content) => {
-        if (content.Message != 'OK') return {type: 'FETCH_URL_FAIL'};
+    dispatch({
+        type: 'FETCH_IMAGES_REQUEST',
     });
-}
 
-export const fetchMatchURLs = (imageData) => {
-    let form = new FormData();
-    form.append('image-file', imageData);
-    form.append('from', '0');
-    form.append('length', '10');
-    return fetch('http://localhost:8080/gif', { method: 'POST', body: form })
-    .then((res) => {
-        if (res.status != 200) return {type: 'FETCH_URL_FAIL'}
-        return parseURLJSON(res.json());
-    });
-}
+    return api.fetchURLs(imageData)
+        .then((content) => {
+            dispatch({
+                type: 'FETCH_URLS_OK', result: {
+                    id: content.ID,
+                    matchArray: content.MatchArray.map((img) => img.ID),
+                    matchCount: content.MatchCount
+                }
+            });
+            return api.fetchImages(content.Data.MatchArray.map((elem) => elem.URL))
+                .then((dataArray) => dispatch({
+                    type: 'FETCH_IMAGES_OK',
+                    result: {
+                        id: content.Data.MatchArray.map((elem) => elem.ID),
+                        data: dataArray
+                    }
+                }));
+        })
+        .catch((err) => dispatch({ type: 'FETCH_IMAGES_FAIL', message: err }));
+};
+
+export const submitMatchImage = (imageIndex) => (dispatch, getState) => {
+    return api.submitMatch(getCurrentImage(getState()), getImage(getState(), imageIndex))
+        .then((res) => res.ok ? res.json().then((content) => content.Message && content.Message == 'OK' ? dispatch({ type: 'SUBMIT_MATCH_OK' }) : dispatch({ type: 'SUBMIT_MATCH_FAIL' })) : dispatch({ type: 'UNEXPECTED_RES_TYPE' }))
+        .catch((err) => dispatch({ type: 'FETCH_NET_ERROR' }));
+};
