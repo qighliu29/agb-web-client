@@ -1,5 +1,5 @@
 import * as api from '../api';
-import { getIsFetching } from '../reducers';
+import { getIsFetching, getCurrentId } from '../reducers';
 
 export const fetchMatchImages = (imageData) => (dispatch, getState) => {
     if (getIsFetching(getState())) {
@@ -15,24 +15,26 @@ export const fetchMatchImages = (imageData) => (dispatch, getState) => {
             dispatch({
                 type: 'FETCH_URLS_OK', result: {
                     id: content.ID,
-                    matchArray: content.MatchArray.map((img) => img.ID),
+                    match: content.MatchArray.map((img) => img.ID),
                     matchCount: content.MatchCount
                 }
             });
-            return api.fetchImages(content.Data.MatchArray.map((elem) => elem.URL))
+            return api.fetchImages(content.MatchArray.map((elem) => elem.URL))
                 .then((dataArray) => dispatch({
                     type: 'FETCH_IMAGES_OK',
                     result: {
-                        id: content.Data.MatchArray.map((elem) => elem.ID),
+                        id: content.MatchArray.map((elem) => elem.ID),
                         data: dataArray
                     }
                 }));
         })
-        .catch((err) => dispatch({ type: 'FETCH_IMAGES_FAIL', message: err }));
+        .catch((err) => dispatch({ type: 'FETCH_IMAGES_FAIL', message: err.toString() }));
 };
 
-export const submitMatchImage = (imageIndex) => (dispatch, getState) => {
-    return api.submitMatch(getCurrentImage(getState()), getImage(getState(), imageIndex))
-        .then((res) => res.ok ? res.json().then((content) => content.Message && content.Message == 'OK' ? dispatch({ type: 'SUBMIT_MATCH_OK' }) : dispatch({ type: 'SUBMIT_MATCH_FAIL' })) : dispatch({ type: 'UNEXPECTED_RES_TYPE' }))
-        .catch((err) => dispatch({ type: 'FETCH_NET_ERROR' }));
+export const submitMatchImage = (sid) => (dispatch, getState) => {
+    return api.submitMatch(getCurrentId(getState()), sid)
+        // .then(() => dispatch({ type: 'PUSH_MATCH_OK' }))
+        // .catch(() => dispatch({ type: 'PUSH_MATCH_FAIL' }));
+        .then(() => console.log('PUSH_MATCH_OK'))
+        .catch(() => console.log('PUSH_MATCH_FAIL'));
 };

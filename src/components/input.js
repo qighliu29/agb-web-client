@@ -1,24 +1,45 @@
 import React, { Component } from 'react';
-import { FormControl, Alert } from 'react-bootstrap';
+import PropTypes from 'prop-types';
+import { FormControl, Alert, Button } from 'react-bootstrap';
+import { connect } from 'react-redux';
+import { getLastError } from '../reducers';
+import * as actions from '../actions';
 
 class ImageInput extends Component {
-    submitHandler(e) {
-        let file = e.target.files[0], reader = new FileReader();
-        reader.onloadend = (e) => fetchMatchImages(new Uint8Array(e.target.result));
+    componentWillUpdate(nextProps) {
+        if (this.error !== nextProps.error) {
+            this.error = nextProps.error;
+            setTimeout(this.forceUpdate.bind(this), 3 * 1000);
+        }
+        else {
+            this.error = '';
+        }
     }
 
     render() {
-        let alert = <Alert bsStyle="warning"><strong>Holy guacamole!</strong> Best check yo self, you're not looking too good.</Alert>;
-
         return (
             <div>
-                <form action="" onSubmit={this.submitHandler}>
-                    <FormControl type="file" />
+                <form action="" onSubmit={(e) => {
+                    e.preventDefault();
+                    this.props.fetchMatchImages(this.input.files[0]);
+                }}>
+                    <FormControl type="file" inputRef={ref => { this.input = ref; }} />
+                    <Button bsStyle="primary" type="submit" >Submit</Button>
                 </form>
-                {fetchError && alert}
+                {this.error && <Alert bsStyle="warning">{this.error}</Alert>}
             </div>
         );
     }
 }
+
+ImageInput.PropTypes = {
+    error: PropTypes.string,
+    fetchMatchImages: PropTypes.func.isRequired
+};
+
+ImageInput = connect(
+    (state) => ({ error: getLastError(state) }),
+    actions
+)(ImageInput);
 
 export default ImageInput;
