@@ -37,10 +37,10 @@ class Gallery extends Component {
         const { images, submitMatchImage } = this.props;
         if (!(images.length > 0)) return null;
         return (
-            <Carousel>
+            <Carousel style={{maxWidth: '360px'}}>
                 {images.map((image) => (
                     <Carousel.Item key={image.id}>
-                        <img alt="" src={"data:image/gif;base64," + this.base64Encode(image.data)} style={{ cursor: 'pointer' }} onClick={() => submitMatchImage(image.id)} />
+                        <img width={240} height={240} alt="" src={"data:image/gif;base64," + this.base64Encode(image.data)} style={{ cursor: 'pointer', margin: 'auto' }} onClick={() => submitMatchImage(image.id)} />
                     </Carousel.Item>
                 ))}
             </Carousel>

@@ -5,7 +5,7 @@ export const fetchURLs = (imageFile) => {
     formData.append('image-file', imageFile);
     formData.append('from', '0');
     formData.append('length', '10');
-    return fetch('http://localhost:8080/gif', {
+    return fetch('http://39.108.79.13:8080/gif', {
         method: 'POST',
         body: formData
     })
@@ -17,15 +17,14 @@ export const fetchURLs = (imageFile) => {
         });
 }
 
-// export const fetchImages = (urlList) => Promise.all(urlList.map((url) => fetch(url).then((res) => res.arrayBuffer()).then((data) => new Uint8Array(data))));
-export const fetchImages = (urlList) => Promise.all(urlList.map(() => fetch('http://placehold.it/240x240').then((res) => res.arrayBuffer()).then((data) => new Uint8Array(data))));
+export const fetchImages = (urlList) => Promise.all(urlList.map((url) => fetch(url).then((res) => res.arrayBuffer()).then((data) => new Uint8Array(data))));
 
 export const submitMatch = (cid, sid) => {
     const formData = new FormData();
     formData.append('home', cid);
     formData.append('away', sid);
     formData.append('user-identifier', 'agb-web-client');
-    return fetch('http://localhost:8080/match', {
+    return fetch('http://39.108.79.13:8080/match', {
         method: 'POST',
         body: formData
     })
